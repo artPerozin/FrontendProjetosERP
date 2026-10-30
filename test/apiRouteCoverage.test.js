@@ -3,7 +3,8 @@ import { test } from 'node:test'
 import { request } from '../src/services/api.js'
 
 const routeContracts = [
-  ['POST', '/auth/register'], ['POST', '/auth/login'],
+  ['POST', '/auth/login'], ['POST', '/auth/refresh'], ['POST', '/auth/logout'],
+  ['GET', '/auth/me'], ['GET', '/auth/permissoes'],
   ['GET', '/usuarios'], ['GET', '/senioridades'], ['POST', '/usuarios'],
   ['PUT', '/usuarios/user-1'], ['DELETE', '/usuarios/user-1'],
   ['GET', '/projetos'], ['POST', '/projetos'], ['PUT', '/projetos/project-1'],
@@ -18,6 +19,13 @@ const routeContracts = [
   ['DELETE', '/pastas/folder-1'], ['GET', '/pastas/folder-1/documentos'],
   ['POST', '/pastas/folder-1/documentos'], ['PUT', '/documentos/doc-1'],
   ['DELETE', '/documentos/doc-1'],
+  ['GET', '/usuarios/user-1/perfil'], ['PATCH', '/usuarios/user-1/status'], ['PUT', '/usuarios/user-1/senha'],
+  ['PUT', '/auth/perfil'], ['PUT', '/auth/senha'],
+  ['GET', '/areas'], ['POST', '/areas'], ['PUT', '/areas/area-1'],
+  ['GET', '/cargos'], ['POST', '/cargos'], ['PUT', '/cargos/cargo-1'],
+  ['POST', '/senioridades'], ['PUT', '/senioridades/sen-1'],
+  ['GET', '/projetos/project-1'], ['POST', '/projetos/project-1/membros'],
+  ['PUT', '/projetos/project-1/membros/part-1'], ['POST', '/projetos/project-1/membros/part-1/encerrar'],
 ]
 
 test(`cliente HTTP cobre todos os ${routeContracts.length} contratos de rota do backend`, async () => {

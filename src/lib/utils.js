@@ -16,10 +16,11 @@ export const NAV = [
   ['estrategia', 'Visão Estratégica', '/estrategia'],
   ['gestao', 'Gestão', '/gestao'],
   ['precificacao', 'Simular precificação', '/precificacao'],
-  ['usuarios', 'Usuários', '/usuarios']
+  ['usuarios', 'Pessoas', '/usuarios'],
+  ['configuracoes', 'Configurações', '/configuracoes'],
+  ['perfil', 'Meu perfil', '/perfil']
 ]
-export const BLOQ = ['estrategia', 'usuarios', 'precificacao']
-export const path = (n, pid) => n === 'projeto' ? '/projetos/' + pid : (NAV.find(x => x[0] === n)?.[2] || '/')
+export const path = (n, pid) => n === 'projeto' ? '/projetos/' + pid : n === 'perfil' && pid ? '/perfil/' + pid : (NAV.find(x => x[0] === n)?.[2] || '/')
 
 export const chip = (c = '') => 'badge rounded-pill ' + c
 export const nid = () => crypto.randomUUID()
@@ -31,3 +32,5 @@ export const prog = (D, p) => { const t = D.t.filter(x => x.projetoId == p.id); 
 export const semana = D => { const h = hj(D); return iso(+h - ((h.getDay() + 6) % 7) * DAY) }
 export const brl = n => (n || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 export const sz = n => n < 1024 ? n + ' B' : n < 1048576 ? Math.round(n / 1024) + ' KB' : (n / 1048576).toFixed(1) + ' MB'
+// Data vinda da API (ISO, meia-noite UTC) para dd/mm/aaaa.
+export const fd = s => s ? new Date(s).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '—'

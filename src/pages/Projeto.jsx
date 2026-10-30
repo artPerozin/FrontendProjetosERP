@@ -1,19 +1,38 @@
 import { useRef, useState } from 'react'
-import { Navigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { DAY, PC, chip, d, fm, hj, iso, nid, nm } from '../lib/utils'
 import Ic from '../components/Icon'
 import ActionMenu from '../components/ActionMenu'
 import TaskModal from '../components/TaskModal'
-import { Av, PageBar } from '../components/Ui'
+import EquipeProjeto from '../components/EquipeProjeto'
+import { Av, PageBar, Seg } from '../components/Ui'
+import alerts from '../lib/alerts'
+import useCarregar from '../lib/useCarregar'
+import { configuracoes, pessoas } from '../services/pessoas'
+import { projetos, rotuloPrioridade } from '../services/projetos'
+import { StatusProjeto, camposProjeto, valoresProjeto } from './Projetos'
 
 const COLS = ['Essa semana', 'Semana que vem', 'Daqui a duas semanas', 'Concluído']
+const ABAS = [['tarefas', 'Tarefas'], ['geral', 'Visão geral'], ['equipe', 'Equipe']]
 
 export default function Projeto() {
-  const { D, up, form, go, me } = useApp(), { id } = useParams(), pid = id
+  const { D, up, form, go, me, pode, refresh } = useApp(), { id } = useParams(), pid = id
   const [pt, setPt] = useState('kanban'), [ov, setOv] = useState(null), [tk, setTk] = useState(null), dg = useRef(null)
-  const p = D.p.find(x => x.id == pid)
-  if (!p) return <Navigate to="/projetos" replace />
+  const [aba, setAba] = useState('tarefas')
+  const gestor = pode('projetos.editar')
+  const { dados, carregando, recarregar } = useCarregar(async () => {
+    const [projeto, todos, gente, areas] = await Promise.all([
+      projetos.buscar(pid), projetos.listar(), gestor ? pessoas.listar() : [], gestor ? configuracoes.areas() : [],
+    ])
+    return { projeto, todos, gente, areas }
+  }, [pid, gestor])
+  const voltar = <button className="btn btn-g" onClick={() => go('projetos')}><Ic k="back" />Voltar</button>
+  if (!dados) return <PageBar title="Projeto" sub={carregando ? 'Carregando…' : 'Projeto não encontrado.'}>{voltar}</PageBar>
+  const { projeto, todos, gente, areas } = dados
+  // Depois de salvar: recarrega o projeto e os dados compartilhados (tarefas, avatares, painel).
+  const aoSalvar = async () => { await recarregar(); refresh().catch(() => {}) }
+  const p = { id: projeto.codigo, nome: projeto.nome, membros: projeto.participacoes.filter(x => !x.dataSaida).map(x => x.usuario.codigo) }
   const T = D.t.filter(t => t.projetoId == pid), h = hj(D)
   const m = +h - ((h.getDay() + 6) % 7) * DAY
   const col = t => t.status == 'concluida' ? 3 : Math.min(2, Math.max(0, Math.floor((+d(t.fim) - m) / (7 * DAY))))
@@ -97,17 +116,54 @@ export default function Projeto() {
       </div>
     )
 
+  const editarProjeto = () => form('Editar projeto', camposProjeto({ lista: gente, areas }), valoresProjeto(projeto), async v => {
+    try {
+      await projetos.editar(projeto.codigo, v)
+      alerts.toastSuccess('Projeto atualizado')
+      await aoSalvar()
+    } catch (error) {
+      alerts.error('Não foi possível salvar', error.message)
+      return false
+    }
+  })
+
+  const dia = s => (s ? String(s).slice(0, 10) : '')
+  const info = [
+    ['Status', <StatusProjeto s={projeto.status} />],
+    ['Referência', projeto.referencia || '—'],
+    ['Cliente', projeto.clienteNome || '—'],
+    ['Período', fm(dia(projeto.dataInicio)) + ' a ' + fm(dia(projeto.dataFim))],
+    ['Prioridade', rotuloPrioridade(projeto.prioridade)],
+    ['Responsável', projeto.responsavel?.nome || '—'],
+    ['Área', projeto.area?.nome || '—'],
+    ['Equipe', <Av D={D} ids={p.membros} />],
+  ]
+  const geral = () => (
+    <div className="card card-body">
+      <div className="row g-3">
+        {info.map(([l, v]) => <div className="col-sm-6 col-lg-3" key={l}><small className="d-block">{l}</small><div className="fw-semibold">{v}</div></div>)}
+      </div>
+      <h3 className="h6 fw-bold mt-4">Descrição</h3>
+      <p className="m-0" style={{ whiteSpace: 'pre-wrap' }}>{projeto.descricao}</p>
+      {projeto.objetivo && <><h3 className="h6 fw-bold mt-3">Objetivo</h3><p className="m-0" style={{ whiteSpace: 'pre-wrap' }}>{projeto.objetivo}</p></>}
+      {gestor && <div className="mt-3"><button className="btn btn-g" onClick={editarProjeto}><Ic k="edit" />Editar projeto</button></div>}
+    </div>
+  )
+
   return (
     <>
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-        <div className="d-flex align-items-center gap-2"><button className="btn btn-g" onClick={() => go('projetos')}><Ic k="back" />Voltar</button><h1>{p.nome}</h1></div>
-        <div className="d-flex flex-wrap gap-2">
+        <div className="d-flex align-items-center gap-2">{voltar}<h1>{projeto.nome}</h1><StatusProjeto s={projeto.status} /></div>
+        {aba == 'tarefas' && <div className="d-flex flex-wrap gap-2">
           <button className={'btn btn-g' + (pt == 'kanban' ? ' on' : '')} onClick={() => setPt('kanban')}>Kanban</button>
           <button className={'btn btn-g' + (pt == 'gantt' ? ' on' : '')} onClick={() => setPt('gantt')}>Cronograma</button>
           <button className="btn btn-primary" onClick={() => add()}><Ic k="plus" />Nova tarefa</button>
-        </div>
+        </div>}
       </div>
-      {pt == 'kanban' ? kanban() : gantt()}
+      <div className="mb-3"><Seg items={ABAS} value={aba} onChange={setAba} /></div>
+      {aba == 'tarefas' && (pt == 'kanban' ? kanban() : gantt())}
+      {aba == 'geral' && geral()}
+      {aba == 'equipe' && <EquipeProjeto projeto={projeto} todos={todos} gente={gente} gestor={gestor} aoSalvar={aoSalvar} />}
       {tk && T.find(x => x.id == tk) && <TaskModal D={D} up={up} t={T.find(x => x.id == tk)} p={p} T={T} close={() => setTk(null)} del={delT} />}
     </>
   )

@@ -9,7 +9,9 @@ import Checkins from './pages/Checkins'
 import Estrategia from './pages/Estrategia'
 import Gestao from './pages/Gestao'
 import Precificacao from './pages/Precificacao'
-import Usuarios from './pages/Usuarios'
+import Pessoas from './pages/Pessoas'
+import Perfil from './pages/Perfil'
+import Configuracoes from './pages/Configuracoes'
 
 export default function App() {
   return (
@@ -24,7 +26,10 @@ export default function App() {
         <Route path="estrategia" element={<Estrategia />} />
         <Route path="gestao" element={<Gestao />} />
         <Route path="precificacao" element={<Precificacao />} />
-        <Route path="usuarios" element={<Usuarios />} />
+        <Route path="usuarios" element={<Pessoas />} />
+        <Route path="perfil" element={<Perfil />} />
+        <Route path="perfil/:codigo" element={<Perfil />} />
+        <Route path="configuracoes" element={<Configuracoes />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

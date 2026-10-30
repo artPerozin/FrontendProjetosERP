@@ -18,7 +18,7 @@ npm install
 Copie `.env.example` para `.env` e ajuste a URL da API:
 
 ```env
-VITE_API_URL=http://localhost:5500
+VITE_API_URL=http://localhost:5001
 ```
 
 Inicie o frontend:
@@ -27,7 +27,7 @@ Inicie o frontend:
 npm run dev
 ```
 
-A documentação Swagger do backend fica em `http://localhost:5500/api-docs`.
+A documentação Swagger do backend fica em `http://localhost:5001/api-docs`.
 
 ## Integração implementada
 
@@ -41,7 +41,7 @@ A API atual não disponibiliza rotas para criar/editar capacitações nem reativ
 
 ### Docker
 
-A imagem do frontend usa `VITE_API_URL=http://localhost:5500` por padrão, alinhado à porta padrão do backend. Ao publicar em outro host, passe `--build-arg VITE_API_URL=https://seu-host-da-api` ao construir a imagem. A URL precisa ser acessível pelo navegador do usuário.
+A imagem do frontend usa `VITE_API_URL=http://localhost:5001` por padrão, alinhado à porta padrão do backend. Ao publicar em outro host, passe `--build-arg VITE_API_URL=https://seu-host-da-api` ao construir a imagem. A URL precisa ser acessível pelo navegador do usuário.
 
 
 ## Testes e senioridades

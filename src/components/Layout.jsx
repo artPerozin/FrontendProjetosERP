@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { BLOQ, fm, ini, un, chip } from '../lib/utils'
+import { fm, ini, un, chip } from '../lib/utils'
 import Ic from './Icon'
 import FormModal from './FormModal'
 
@@ -24,7 +24,7 @@ function Header() {
             <span className="sun"><Ic k="sun" /></span><span className="moon"><Ic k="moon" /></span>
           </button>
           <span className="hu"><b>{un(D, me)}</b><small>{D.u.find(u => u.id == me)?.perfil}</small></span>
-          <span className="av" title={un(D, me)}>{ini(un(D, me))}</span>
+          <span className="av" role="button" title="Meu perfil" onClick={() => navigate('/perfil')}>{ini(un(D, me))}</span>
           <button className="btn btn-g btn-sm" onClick={sair}><Ic k="logout" />Sair</button>
         </div>
       </div>
@@ -48,10 +48,11 @@ function SideNav() {
 }
 
 export default function Layout() {
-  const { me, mb, md, setMd } = useApp(), { pathname } = useLocation()
+  const { me, nav, md, setMd } = useApp(), { pathname } = useLocation()
   if (!me) return <Navigate to="/login" replace />
   const secao = pathname.split('/')[1]
-  if (mb && BLOQ.includes(secao)) return <Navigate to="/" replace />
+  // Só abre telas que vieram no menu da pessoa (GET /auth/permissoes).
+  if (secao && !nav.some(([, , caminho]) => caminho === '/' + secao)) return <Navigate to="/" replace />
   return (
     <>
       <Header />

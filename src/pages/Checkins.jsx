@@ -13,8 +13,8 @@ const Tx = ({ x }) => (
 )
 
 export default function Checkins() {
-  const { D, up, me } = useApp()
-  const wk = semana(D), eu = D.u.find(u => u.id == me), gestor = eu?.perfil != 'membro', [ab, setAb] = useState('meus')
+  const { D, up, me, pode } = useApp()
+  const wk = semana(D), eu = D.u.find(u => u.id == me), gestor = pode('checkins.verTodos'), [ab, setAb] = useState('meus')
   const mine = D.i.find(x => x.usuarioId == me && x.semana == wk), [ed, setEd] = useState(!mine), [v, setV] = useState(mine || { humor: 3, resumo: '', aprendizados: '', sentimento: '' })
   const [sw, setSw] = useState(wk), [fm2, setFm2] = useState('')
   const set = (k, x) => setV(o => ({ ...o, [k]: x })), time = D.u.filter(u => u.ativo && u.perfil == 'membro')

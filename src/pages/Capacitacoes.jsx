@@ -131,11 +131,11 @@ function Feedbacks() {
 }
 
 export default function Capacitacoes() {
-  const { D, up, me } = useApp(), [ab, setAb] = useState('lista')
+  const { D, up, me, pode } = useApp(), [ab, setAb] = useState('lista')
   const [mostrarCriacao, setMostrarCriacao] = useState(false)
   const [formacao, setFormacao] = useState({ titulo: '', data: '', hora: '09:00', vagas: 10, tipo: 'computacao', sala: '' })
   const usuarioAtual = D?.u?.find(usuario => String(usuario.id) === String(me))
-  const podeCriar = usuarioAtual?.perfil === 'diretor'
+  const podeCriar = pode('capacitacoes.gerir')
   const criar = evento => {
     evento.preventDefault()
     if (!formacao.titulo.trim() || !formacao.data || !formacao.hora || !formacao.sala.trim() || Number(formacao.vagas) < 1) return

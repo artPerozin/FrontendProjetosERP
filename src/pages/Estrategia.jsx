@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
-import { DAY, PC, TIPO, chip, d, fm, hj, ini, nm, prog } from '../lib/utils'
+import { DAY, PC, TIPO, chip, d, fm, hj, nm, prog } from '../lib/utils'
 import Burn from '../components/Burn'
-import Ic from '../components/Icon'
 import Table from '../components/Table'
 import { PageBar, Prog } from '../components/Ui'
 
@@ -29,8 +28,6 @@ export default function Estrategia() {
     { l: 'Quais', render: x => x.ks.map(k => <span key={k.id} className={chip('tp-' + k.tipo + ' me-1 d-inline-block')}>{k.titulo}</span>) }
   ]
 
-  const rk = ativos.filter(u => u.perfil == 'membro').map(u => { const c = T.filter(t => t.status == 'concluida' && t.responsaveis.includes(u.id)); return { u, n: c.length, np: c.filter(t => t.conclusao <= t.fim).length } }).sort((a, b) => b.n - a.n || b.np - a.np)
-  const top = rk[0]?.n ? rk[0] : null, mx = Math.max(1, ...rk.slice(0, 3).map(r => r.n))
 
   return (
     <>
@@ -94,20 +91,6 @@ export default function Estrategia() {
         <div className="col-lg-4"><div className="card card-body h-100">
           <h2>Não participaram de nenhuma</h2>
           {sem.length ? <div className="d-flex flex-wrap gap-1">{sem.map(x => <span key={x.id} className={chip()}>{x.nome}</span>)}</div> : <small>Todos os membros ativos já participaram.</small>}
-        </div></div>
-      </div>
-
-      <div className="sec"><h2>Membros destaque</h2></div>
-      <div className="row g-3">
-        <div className="col-lg-8">
-          {top ? (
-            <div className="card hl2 h-100"><span className="st"><Ic k="star" /></span><span className="av big">{ini(top.u.nome)}</span><b className="fs-4">{top.u.nome}</b><span>{top.n} {top.n == 1 ? 'contribuição' : 'contribuições'} · {top.np} no prazo</span></div>
-          ) : <div className="card card-body"><small>Ainda não há contribuições registradas.</small></div>}
-        </div>
-        <div className="col-lg-4"><div className="card card-body h-100">
-          <h2>Top 3 em contribuições</h2>
-          {rk.slice(0, 3).map((r, i) => <div className="mb" key={r.u.id}><span>{i + 1}º {r.u.nome.split(' ')[0]}</span><Prog v={r.n / mx * 100} /><b>{r.n}</b></div>)}
-          <small className="d-block mt-3">Contribuições são tarefas concluídas. Gerentes e diretores não entram no ranking.</small>
         </div></div>
       </div>
     </>
